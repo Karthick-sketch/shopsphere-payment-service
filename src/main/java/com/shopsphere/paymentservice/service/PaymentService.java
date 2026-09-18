@@ -1,8 +1,10 @@
 package com.shopsphere.paymentservice.service;
 
+import com.shopsphere.paymentservice.dto.PaymentRequest;
 import com.shopsphere.paymentservice.entity.Payment;
-import com.shopsphere.paymentservice.enums.PaymentStatus;
+import com.shopsphere.paymentservice.enums.*;
 import com.shopsphere.paymentservice.repository.PaymentRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,16 @@ public class PaymentService {
     return paymentRepository.findByStatus(status);
   }
 
-  public Payment create(Payment payment) {
+  public Payment create(PaymentRequest request) throws InterruptedException {
+    Payment payment = toPayment(request);
+
+    // mock 3s payment gateway delay
+    if (PaymentMethod.CARD.equals(payment.getMethod())) {
+      Thread.sleep(3000);
+      payment.setStatus(PaymentStatus.PAID);
+      payment.setPaidAt(LocalDateTime.now());
+    }
+
     return paymentRepository.save(payment);
   }
 
@@ -50,5 +61,15 @@ public class PaymentService {
   public void delete(Long id) {
     findById(id);
     paymentRepository.deleteById(id);
+  }
+
+  private Payment toPayment(PaymentRequest request) {
+    return Payment.builder()
+      .orderId(request.getOrderId())
+      .amount(request.getAmount())
+      .status(request.getStatus())
+      .method(request.getMethod())
+      .initiatedAt(request.getInitiatedAt())
+      .build();
   }
 }

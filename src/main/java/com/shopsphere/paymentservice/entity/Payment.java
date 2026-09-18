@@ -1,7 +1,6 @@
 package com.shopsphere.paymentservice.entity;
 
-import com.shopsphere.paymentservice.enums.PaymentMethod;
-import com.shopsphere.paymentservice.enums.PaymentStatus;
+import com.shopsphere.paymentservice.enums.*;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,15 +29,14 @@ public class Payment {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private PaymentStatus status = PaymentStatus.PENDING;
+  private PaymentStatus status;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private PaymentMethod method = PaymentMethod.COD;
+  private PaymentMethod method;
 
-  @Column(name = "payment_date", nullable = false)
-  @Builder.Default
-  private LocalDateTime paymentDate = LocalDateTime.now();
+  @Column(nullable = false)
+  private LocalDateTime initiatedAt;
+
+  private LocalDateTime paidAt;
 }

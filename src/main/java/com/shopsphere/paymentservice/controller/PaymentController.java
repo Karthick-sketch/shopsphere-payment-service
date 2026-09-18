@@ -1,5 +1,6 @@
 package com.shopsphere.paymentservice.controller;
 
+import com.shopsphere.paymentservice.dto.PaymentRequest;
 import com.shopsphere.paymentservice.entity.Payment;
 import com.shopsphere.paymentservice.enums.PaymentStatus;
 import com.shopsphere.paymentservice.service.PaymentService;
@@ -39,9 +40,10 @@ public class PaymentController {
   }
 
   @PostMapping
-  public ResponseEntity<Payment> create(@RequestBody Payment payment) {
+  public ResponseEntity<Payment> create(@RequestBody PaymentRequest request)
+    throws InterruptedException {
     return ResponseEntity.status(HttpStatus.CREATED).body(
-      paymentService.create(payment)
+      paymentService.create(request)
     );
   }
 
