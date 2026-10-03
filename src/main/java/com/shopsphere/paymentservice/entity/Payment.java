@@ -33,7 +33,7 @@ public class Payment {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private PaymentMethod method;
+  private PaymentMethod paymentMethod;
 
   @Column(nullable = false)
   private LocalDateTime initiatedAt;

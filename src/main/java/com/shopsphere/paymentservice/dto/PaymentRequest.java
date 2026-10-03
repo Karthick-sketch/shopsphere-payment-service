@@ -1,8 +1,7 @@
 package com.shopsphere.paymentservice.dto;
 
-import com.shopsphere.paymentservice.enums.*;
+import com.shopsphere.paymentservice.enums.PaymentMethod;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,10 @@ public class PaymentRequest {
 
   private Long orderId;
   private BigDecimal amount;
-  private PaymentStatus status;
-  private PaymentMethod method;
-  private LocalDateTime initiatedAt;
+  private PaymentMethod paymentMethod;
+  private String cardName;
+  private String cardNumber;
+  private String expiryMonth;
+  private String expiryYear;
+  private String cvv;
 }
