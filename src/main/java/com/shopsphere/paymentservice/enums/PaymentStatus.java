@@ -2,6 +2,6 @@ package com.shopsphere.paymentservice.enums;
 
 public enum PaymentStatus {
   PENDING,
-  PAID,
+  SUCCESS,
   FAILED,
 }
