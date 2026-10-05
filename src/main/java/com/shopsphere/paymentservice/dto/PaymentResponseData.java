@@ -1,7 +1,7 @@
 package com.shopsphere.paymentservice.dto;
 
-import com.shopsphere.paymentservice.enums.PaymentMethod;
 import com.shopsphere.paymentservice.enums.PaymentStatus;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentStatusChangedData {
+public class PaymentResponseData {
 
   private Long userId;
   private Long orderId;
   private Long paymentId;
   private PaymentStatus status;
-  private PaymentMethod paymentMethod;
+  private LocalDateTime paidAt;
 }

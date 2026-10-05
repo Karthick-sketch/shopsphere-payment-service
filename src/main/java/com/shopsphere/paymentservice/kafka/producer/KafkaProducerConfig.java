@@ -1,5 +1,6 @@
-package com.shopsphere.paymentservice.kafka;
+package com.shopsphere.paymentservice.kafka.producer;
 
+import com.shopsphere.paymentservice.kafka.events.PaymentResponseEvent;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -19,7 +20,7 @@ public class KafkaProducerConfig {
   private String bootstrapServers;
 
   @Bean
-  public ProducerFactory<String, PaymentStatusChangedEvent> producerFactory() {
+  public ProducerFactory<String, PaymentResponseEvent> producerFactory() {
     Map<String, Object> config = new HashMap<>();
     config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.put(
@@ -34,7 +35,7 @@ public class KafkaProducerConfig {
   }
 
   @Bean
-  public KafkaTemplate<String, PaymentStatusChangedEvent> kafkaTemplate() {
+  public KafkaTemplate<String, PaymentResponseEvent> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
   }
 }

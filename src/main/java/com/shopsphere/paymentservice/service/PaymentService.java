@@ -3,8 +3,8 @@ package com.shopsphere.paymentservice.service;
 import com.shopsphere.paymentservice.dto.*;
 import com.shopsphere.paymentservice.entity.Payment;
 import com.shopsphere.paymentservice.enums.*;
-import com.shopsphere.paymentservice.kafka.KafkaProducerService;
-import com.shopsphere.paymentservice.kafka.PaymentStatusChangedEvent;
+import com.shopsphere.paymentservice.kafka.events.PaymentResponseEvent;
+import com.shopsphere.paymentservice.kafka.producer.KafkaProducerService;
 import com.shopsphere.paymentservice.repository.PaymentRepository;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -38,14 +38,14 @@ public class PaymentService {
       payment = paymentRepository.save(payment);
 
       // publish payment status changed event to kafka
-      kafkaProducerService.sendPaymentStatusChangedEvent(
-        mapPaymentStatusChangedEventSucceeded(authUserId, payment)
+      kafkaProducerService.sendPaymentResponseEvent(
+        mapPaymentResponseEventSuccess(authUserId, payment)
       );
 
       return toPaymentResponse(payment);
     } catch (Exception e) {
-      kafkaProducerService.sendPaymentStatusChangedEvent(
-        mapPaymentStatusChangedEventFailed(authUserId, payment)
+      kafkaProducerService.sendPaymentResponseEvent(
+        mapPaymentResponseEventFailed(authUserId, payment)
       );
       throw new RuntimeException("Failed to process payment");
     }
@@ -64,39 +64,46 @@ public class PaymentService {
     Payment payment = paymentRepository.save(toCodPayment(request));
 
     // publish payment status changed event to kafka
-    kafkaProducerService.sendPaymentStatusChangedEvent(
-      mapPaymentStatusChangedEventSucceeded(authUserId, payment)
+    kafkaProducerService.sendPaymentResponseEvent(
+      mapPaymentResponseEventSuccess(authUserId, payment)
     );
 
     return toPaymentResponse(payment);
   }
 
-  private PaymentStatusChangedEvent mapPaymentStatusChangedEventSucceeded(
+  public void handlePaymentRequestEvent(PaymentRequestData data) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException(
+      "Unimplemented method 'handlePaymentRequestEvent'"
+    );
+  }
+
+  private PaymentResponseEvent mapPaymentResponseEventSuccess(
     Long authUserId,
     Payment payment
   ) {
-    return new PaymentStatusChangedEvent(
-      new PaymentStatusChangedData(
+    return new PaymentResponseEvent(
+      new PaymentResponseData(
         authUserId,
         payment.getOrderId(),
         payment.getId(),
         PaymentStatus.SUCCESS,
-        payment.getPaymentMethod()
+        payment.getPaidAt()
       )
     );
   }
 
-  private PaymentStatusChangedEvent mapPaymentStatusChangedEventFailed(
+  private PaymentResponseEvent mapPaymentResponseEventFailed(
     Long authUserId,
     Payment payment
   ) {
-    return new PaymentStatusChangedEvent(
-      new PaymentStatusChangedData(
+    return new PaymentResponseEvent(
+      new PaymentResponseData(
         authUserId,
         payment.getOrderId(),
         payment.getId(),
         PaymentStatus.FAILED,
-        payment.getPaymentMethod()
+        null
       )
     );
   }
