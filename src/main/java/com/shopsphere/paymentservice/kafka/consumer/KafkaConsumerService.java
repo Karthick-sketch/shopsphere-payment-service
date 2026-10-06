@@ -17,6 +17,6 @@ public class KafkaConsumerService {
     groupId = "${kafka.consumer.group-id}"
   )
   public void handlePaymentRequestEvent(PaymentRequestEvent event) {
-    paymentService.handlePaymentRequestEvent(event.getData());
+    paymentService.processCardPayment(event.getData());
   }
 }

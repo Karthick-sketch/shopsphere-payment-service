@@ -12,7 +12,7 @@ public class KafkaProducerService {
   private final KafkaTemplate<String, PaymentResponseEvent> kafkaTemplate;
 
   public KafkaProducerService(
-    @Value("${kafka.topic.payment-status}") String topic,
+    @Value("${kafka.topic.payment-response}") String topic,
     KafkaTemplate<String, PaymentResponseEvent> kafkaTemplate
   ) {
     this.topic = topic;

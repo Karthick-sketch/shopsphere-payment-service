@@ -16,19 +16,14 @@ public class PaymentController {
 
   private final PaymentService paymentService;
 
-  @PostMapping
-  public ResponseEntity<PaymentResponse> processPayment(
+  @PostMapping("/cod")
+  public ResponseEntity<PaymentResponse> processCodPayment(
     @RequestBody PaymentRequest request,
     @AuthenticationPrincipal Jwt jwt
   ) {
     Long authUserId = Long.valueOf(jwt.getClaim("sub"));
-    PaymentResponse response = switch (request.getPaymentMethod()) {
-      case CARD -> paymentService.processCardPayment(authUserId, request);
-      case COD -> paymentService.processCodPayment(authUserId, request);
-      default -> throw new RuntimeException(
-        "Invalid payment method : " + request.getPaymentMethod()
-      );
-    };
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      paymentService.processCodPayment(authUserId, request)
+    );
   }
 }

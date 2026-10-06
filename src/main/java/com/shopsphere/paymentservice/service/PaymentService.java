@@ -18,34 +18,36 @@ public class PaymentService {
 
   private final KafkaProducerService kafkaProducerService;
 
-  public PaymentResponse processCardPayment(
-    Long authUserId,
-    PaymentRequest request
-  ) {
-    if (!PaymentMethod.CARD.equals(request.getPaymentMethod())) {
+  public void processCardPayment(PaymentRequestData data) {
+    // validate payment method is card
+    if (!PaymentMethod.CARD.equals(data.getPaymentMethod())) {
       throw new RuntimeException(
-        "Invalid payment method : " + request.getPaymentMethod()
+        "Invalid payment method : " + data.getPaymentMethod()
       );
     }
 
-    Payment payment = paymentRepository.save(toCardPayment(request));
+    // create payment entity
+    Payment payment = paymentRepository.save(toCardPayment(data));
     try {
       // mock 3s payment gateway delay
       Thread.sleep(3000);
-      // set payment status to paid and save it to the database
+      // set payment status to success
       payment.setStatus(PaymentStatus.SUCCESS);
       payment.setPaidAt(LocalDateTime.now());
       payment = paymentRepository.save(payment);
 
-      // publish payment status changed event to kafka
+      // publish payment success event to kafka
       kafkaProducerService.sendPaymentResponseEvent(
-        mapPaymentResponseEventSuccess(authUserId, payment)
+        mapPaymentResponseEventSuccess(data.getUserId(), payment)
       );
-
-      return toPaymentResponse(payment);
     } catch (Exception e) {
+      // update payment status to failed
+      payment.setStatus(PaymentStatus.FAILED);
+      payment = paymentRepository.save(payment);
+
+      // publish payment failed event to kafka
       kafkaProducerService.sendPaymentResponseEvent(
-        mapPaymentResponseEventFailed(authUserId, payment)
+        mapPaymentResponseEventFailed(data.getUserId(), payment)
       );
       throw new RuntimeException("Failed to process payment");
     }
@@ -63,19 +65,12 @@ public class PaymentService {
 
     Payment payment = paymentRepository.save(toCodPayment(request));
 
-    // publish payment status changed event to kafka
+    // publish payment success event to kafka
     kafkaProducerService.sendPaymentResponseEvent(
       mapPaymentResponseEventSuccess(authUserId, payment)
     );
 
     return toPaymentResponse(payment);
-  }
-
-  public void handlePaymentRequestEvent(PaymentRequestData data) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-      "Unimplemented method 'handlePaymentRequestEvent'"
-    );
   }
 
   private PaymentResponseEvent mapPaymentResponseEventSuccess(
@@ -108,11 +103,11 @@ public class PaymentService {
     );
   }
 
-  private Payment toCardPayment(PaymentRequest request) {
+  private Payment toCardPayment(PaymentRequestData data) {
     return Payment.builder()
-      .orderId(request.getOrderId())
-      .amount(request.getAmount())
-      .paymentMethod(request.getPaymentMethod())
+      .orderId(data.getOrderId())
+      .amount(data.getAmount())
+      .paymentMethod(data.getPaymentMethod())
       .initiatedAt(LocalDateTime.now())
       .status(PaymentStatus.PENDING)
       .build();

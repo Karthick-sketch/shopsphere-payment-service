@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequestData {
 
+  private Long userId;
   private Long orderId;
   private BigDecimal amount;
   private PaymentMethod paymentMethod;
